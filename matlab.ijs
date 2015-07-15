@@ -1,7 +1,5 @@
 NB. Api to read matlab files into J
-
 require 'dll'
-
 cocurrent 'matlab'
 
 NB. == Host library path
@@ -30,38 +28,24 @@ mxGetImagData=: libmx, ' mxGetImagData  > x  x'
 NB. adverb to make a verb that throws error 11 (nonce) with error message
 notImp=: 1 : '(13!:8)@:(11"_)@:smoutput@:(m"_)'
 
-NB. Binary to J conversion verbs 
-unknown=. 'Mat type is unkown' notImp
-int1=: 'Signed 1 byte integer not implemented yet' notImp
-uint1=: a.&i.
-int2=: _1 & ic  
-uint2=: 0 & ic  
-int4=: _2 & ic  
-uint4=: 'Unsigned 4 byte integer not implemented yet' notImp
-int8=: _3 & ic  
-uint8=: 'Unsigned 8 byte integer not implemented yet' notImp
-float4=: _1 & fc 
-float8=: _2 & fc
-int2j=: (-2+IF64) & ic   NB. 4 or 8 byte binary integer to J
-
 NB. mxClassID  numbytes  binary_converter
 mxTypes=: dltb each ('|'&cut;._2) 0 : 0
-mxUNKNOWN_CLASS  | 0 |  unknown
+mxUNKNOWN_CLASS  | 0 |  'Mat type is unkown' notImp
 mxCELL_CLASS     | 0 | 'Reading mxCELL not implemented'notImp
 mxSTRUCT_CLASS   | 0 | 'Reading mxSTRUCT not implemented'notImp
-mxLOGICAL_CLASS  | 1 |  uint1
+mxLOGICAL_CLASS  | 1 |  a.&i.
 mxCHAR_CLASS     | 1 | 'Reading mxCHAR not implemented'notImp
 mxVOID_CLASS     | 0 | 'Reading mxVOID not implemented'notImp
-mxDOUBLE_CLASS   | 8 |  float8 
-mxSINGLE_CLASS   | 4 |  float4
+mxDOUBLE_CLASS   | 8 |  _2&fc
+mxSINGLE_CLASS   | 4 |  _1&fc
 mxINT8_CLASS     | 1 | 'Reading mxINT8 not implemented'notImp
-mxUINT8_CLASS    | 1 |  uint1
-mxINT16_CLASS    | 2 |  int2
-mxUINT16_CLASS   | 2 |  uint2
-mxINT32_CLASS    | 4 |  int4
-mxUINT32_CLASS   | 4 |  uint4
-mxINT64_CLASS    | 8 |  int8
-mxUINT64_CLASS   | 8 |  uint8
+mxUINT8_CLASS    | 1 |  a.&i.
+mxINT16_CLASS    | 2 |  _1&ic
+mxUINT16_CLASS   | 2 |  0&ic
+mxINT32_CLASS    | 4 |  _2&ic
+mxUINT32_CLASS   | 4 |  'Unsigned 4 byte integer not implemented yet'notImp
+mxINT64_CLASS    | 8 |  _3&ic
+mxUINT64_CLASS   | 8 |  'Unsigned 8 byte integer not implemented yet' notImp
 mxFUNCTION_CLASS | 0 | 'Reading mxFUNCTION not implemented'notImp
 mxOPAQUE_CLASS   | 0 | 'Reading mxOPAQUE not implemented'notImp
 mxOBJECT_CLASS   | 0 | 'Reading mxOBJECT not implemented'notImp
@@ -82,7 +66,6 @@ readmat=: monad define
   stdout 'Read first mxArray... '
   ppname=. mema SZI  
   pa=. matGetNextVariable cd pmat;ppname  NB. mxArray*
-  NB.echo 'done'
   smoutput 'done'
 
   smoutput 'Get mxArray info'
